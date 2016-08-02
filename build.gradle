@@ -69,10 +69,10 @@ class BlenderExec extends DefaultTask {
     void run() {
         new ByteArrayOutputStream().withStream { out ->
             project.exec {
-                // TODO: Add --disable-autoexec option to Python to disable startup scripts
                 // '--' argument causes Blender to ignore following arguments
                 // therefore destFile can be used for saving from within script using index sys.argv.index('--')+1
-                commandLine 'blender', srcFile, '--background', '--python', scriptFile ?: createScriptFile(script), '--', destFile
+                // -Y stops Blender from running startup scripts
+                commandLine 'blender', srcFile, '-Y', '--background', '--python', scriptFile ?: createScriptFile(script), '--', destFile
                 standardOutput = out
                 errorOutput = out
             }
