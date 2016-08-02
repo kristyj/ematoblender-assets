@@ -1,0 +1,66 @@
+plugins {
+    id 'groovy'
+}
+
+sourceSets {
+    blend
+}
+
+task rotateCube(type: BlenderExec) {
+    dependsOn processBlendResources
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/cube_rot.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/cube.blend")
+    destFile = destBlendFile
+    script = """|bpy.data.objects['Cube'].rotation_euler = ${[0.5] * 3}
+                |bpy.ops.wm.save_as_mainfile(filepath='$destFile', compress=True)""".stripMargin()
+}
+
+task renderCube(type: BlenderExec) {
+    dependsOn rotateCube
+    srcFile = rotateCube.destBlendFile
+    destFile = file("$buildDir/render.png")
+    script = """|bpy.data.scenes['Scene'].render.filepath = '$destFile'
+                |bpy.ops.render.render(write_still=True)""".stripMargin()
+}
+
+class BlenderExec extends DefaultTask {
+
+    @InputFile
+    @Optional
+    File srcFile
+
+    @Input
+    @Optional
+    String script
+
+    @InputFile
+    @Optional
+    File scriptFile
+
+    @OutputFile
+    File destFile
+
+    File createScriptFile(String contents) {
+        def scriptFile = project.file("$temporaryDir/script.py")
+        scriptFile.withWriter { script ->
+            script.println "import bpy"
+            contents.eachLine { line ->
+                script.println line
+            }
+            script.println "bpy.ops.wm.quit_blender()"
+        }
+        scriptFile
+    }
+
+    @TaskAction
+    void run() {
+        new ByteArrayOutputStream().withStream { out ->
+            project.exec {
+                commandLine 'blender', '--background', '--python', scriptFile ?: createScriptFile(script), destFile
+                standardOutput = out
+                errorOutput = out
+            }
+            logger.info out.toString()
+        }
+    }
+}
