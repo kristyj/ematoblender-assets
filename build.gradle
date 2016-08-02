@@ -6,6 +6,10 @@ sourceSets {
     blend
 }
 
+processBlendResources {
+    from "src/blend/scripts"
+}
+
 task rotateCube(type: BlenderExec) {
     dependsOn processBlendResources
     ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/cube_rot.blend")
@@ -21,6 +25,15 @@ task renderCube(type: BlenderExec) {
     destFile = file("$buildDir/render.png")
     script = """|bpy.data.scenes['Scene'].render.filepath = '$destFile'
                 |bpy.ops.render.render(write_still=True)""".stripMargin()
+}
+
+// Example task illustrating
+task moveCubeFromFile(type: BlenderExec) {
+    dependsOn processBlendResources
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/example_moved.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/cube.blend")
+    destFile = destBlendFile
+    scriptFile = file("$sourceSets.blend.output.resourcesDir/asset_manipulation_example.py")
 }
 
 class BlenderExec extends DefaultTask {
@@ -57,7 +70,9 @@ class BlenderExec extends DefaultTask {
         new ByteArrayOutputStream().withStream { out ->
             project.exec {
                 // TODO: Add --disable-autoexec option to Python to disable startup scripts
-                commandLine 'blender', srcFile, '--background', '--python', scriptFile ?: createScriptFile(script), destFile
+                // '--' argument causes Blender to ignore following arguments
+                // therefore destFile can be used for saving from within script using index sys.argv.index('--')+1
+                commandLine 'blender', srcFile, '--background', '--python', scriptFile ?: createScriptFile(script), '--', destFile
                 standardOutput = out
                 errorOutput = out
             }
