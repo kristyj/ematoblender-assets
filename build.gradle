@@ -45,7 +45,7 @@ class BlenderExec extends DefaultTask {
         scriptFile.withWriter { script ->
             script.println "import bpy"
             contents.eachLine { line ->
-                script.println line
+                script.println line.replaceAll("\\\\","\\\\\\\\")
             }
             script.println "bpy.ops.wm.quit_blender()"
         }
@@ -56,7 +56,8 @@ class BlenderExec extends DefaultTask {
     void run() {
         new ByteArrayOutputStream().withStream { out ->
             project.exec {
-                commandLine 'blender', '--background', '--python', scriptFile ?: createScriptFile(script), destFile
+                // TODO: Add --disable-autoexec option to Python to disable startup scripts
+                commandLine 'blender', srcFile, '--background', '--python', scriptFile ?: createScriptFile(script), destFile
                 standardOutput = out
                 errorOutput = out
             }
