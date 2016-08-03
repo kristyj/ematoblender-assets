@@ -76,6 +76,23 @@ task addCoilObjects(type: BlenderExec) {
                 |save_blend_to_dest()""".stripMargin()
 }
 
+task loadGameMenus(type: BlenderExec) {
+    dependsOn addGameLogic
+    // todo: version the type of menus that are added (the menu blend will evolve with time)
+    // todo: the information about the location is in the properties script, see within Python script
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/game_logic_menus.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/game_logic_only.blend")
+    resourcesDir = "$sourceSets.blend.output.resourcesDir"
+    destFile = destBlendFile
+    script = """|import bpy_import_assets as ia
+                |#ia.add_statusbar_scene('$resourcesDir')
+                |ia.add_menu_scene('$resourcesDir')
+                |from asset_manipulation_example import save_blend_to_dest
+                |save_blend_to_dest()""".stripMargin()
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
 
 class BlenderExec extends DefaultTask {
 
