@@ -43,6 +43,26 @@ task moveCubeFromFile(type: BlenderExec) {
 }
 /* ------------------------------------------------------------------------------------------------------------------ */
 
+// Scene construction tasks
+
+/* These tasks are used to create the building blocks of the Ematoblender scene, such as the game loop,
+*  putting Blender into game mode
+*  creating (hidden) assets such as the coil objects (that later will follow the location of motion-capture sensors).
+*  They are also available as a Panel in Blender at present (the panel is constructed using a Blender startup script).
+* */
+
+task addGameLogic(type: BlenderExec) {
+    dependsOn processBlendResources
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/game_logic_only.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/cube.blend")
+    destFile = destBlendFile
+    resourcesDir = "$sourceSets.blend.output.resourcesDir"
+    script = """|from bpy_add_game_objects import add_game_master
+                |add_game_master()
+                |from asset_manipulation_example import save_blend_to_dest
+                |save_blend_to_dest()""".stripMargin()
+}
+
 class BlenderExec extends DefaultTask {
 
     @InputFile
