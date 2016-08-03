@@ -19,6 +19,7 @@ task rotateCube(type: BlenderExec) {
     ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/cube_rot.blend")
     srcFile = file("$sourceSets.blend.output.resourcesDir/cube.blend")
     destFile = destBlendFile
+    resourcesDir = "$sourceSets.blend.output.resourcesDir"
     script = """|bpy.data.objects['Cube'].rotation_euler = ${[0.5] * 3}
                 |bpy.ops.wm.save_as_mainfile(filepath='$destFile', compress=True)""".stripMargin()
 }
@@ -52,6 +53,10 @@ class BlenderExec extends DefaultTask {
     @Optional
     String script
 
+    @Input
+    @Optional
+    String resourcesDir
+
     @InputFile
     @Optional
     File scriptFile
@@ -63,6 +68,14 @@ class BlenderExec extends DefaultTask {
         def scriptFile = project.file("$temporaryDir/script.py")
         scriptFile.withWriter { script ->
             script.println "import bpy"
+
+            // give access to the contents in the scripts folder
+            if (getInputs().getProperties().containsKey("resourcesDir")){ // todo: optimise this syntax
+                println "Has resources dir: " + "${resourcesDir.replaceAll('\\\\', '\\\\\\\\')}"
+                script.println "import sys"
+                script.println "sys.path.append('${resourcesDir.replaceAll('\\\\', '\\\\\\\\')}')"
+            } else {println("there is no resourcesDir availabe to import for this task")}
+
             contents.eachLine { line ->
                 script.println line.replaceAll("\\\\","\\\\\\\\")
             }
