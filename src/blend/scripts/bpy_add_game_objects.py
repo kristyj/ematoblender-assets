@@ -1,12 +1,9 @@
 __author__ = 'Kristy'
 import bpy
 
-from . import bpy_workspace as ws
-
-
-from ematoblender.scripts.ema_shared import properties as pps
-from ematoblender.scripts.ema_shared.miscellanous import get_random_color
-from ematoblender.scripts.ema_blender import blender_shared_objects as bsh
+import bpy_workspace as ws
+import asset_properties as pps
+from misc import get_random_color
 
 @ws.do_on_scene_setup_decorator
 @ws.postfn_gamemaster_reset_decorator
@@ -112,7 +109,6 @@ def spawn_hidden_coils(naming_rule, n=16,):
         # Create the empty for the coil objects
         empname = 'CoilEmpty{}'.format(str(i).zfill(2))
         cob = add_cube_parented_to_empty(scn, empname, naming_rule(i), whitetex)
-        bsh.all_ema_meshes.append((i, cob))
     return
 
 
@@ -129,23 +125,22 @@ def spawn_inferred_coil(name, rule, *ruleargs, texture=None):
     cubtex = create_transparent_texture() if texture is None else texture
     empname = 'InferredEmpty_'+name
     cob = add_cube_parented_to_empty(scn, empname, name, cubtex, hidden=False)
-    bsh.ema_inferred_meshes.append((0, cob, name, rule, ruleargs))
     return cob
 
 
-def reload_inferred_coil(name, rule, *ruleargs):
-    """
-    Used to reload spawned objects from a saved riged scene.
-    Inferred objects saved in bsh.ema_inferred_meshes are lost on restart.
-    """
-    import bpy
-    import scripts.ema_blender.blender_shared_objects as bsh
-    scn = bpy.context.scene
-    cob = scn.objects.get(name, False)
-    if cob:
-        bsh.ema_inferred_meshes.append((0, cob, name, rule, ruleargs))
-
-
+# def reload_inferred_coil(name, rule, *ruleargs):
+#     """
+#     Used to reload spawned objects from a saved riged scene.
+#     Inferred objects saved in bsh.ema_inferred_meshes are lost on restart.
+#     """
+#     import bpy
+#     import scripts.ema_blender.blender_shared_objects as bsh
+#     scn = bpy.context.scene
+#     cob = scn.objects.get(name, False)
+#     if cob:
+#         bsh.ema_inferred_meshes.append((0, cob, name, rule, ruleargs))
+#
+#
 def add_cube_parented_to_empty(scene, emptyname, cubename, texture, hidden=True):
     """Add one empty with name emptyname.
     Add one icosphere with cubename.
@@ -163,9 +158,6 @@ def add_cube_parented_to_empty(scene, emptyname, cubename, texture, hidden=True)
     # Put a random colour on each cube to help with identification
     cob.draw_type = 'SOLID'
     cob.color = get_random_color()
-
-    # old approach, doesn't allow transparency of colorsetting
-    # cob.data.materials.append(bpy.data.materials.new(name="cubecolor")) cob.data.materials[0].diffuse_color = get_random_color()
 
     # below is old, use SEEK STEERING actuator rather than parent
     # make the cube the parent of the empty
@@ -212,23 +204,3 @@ def create_transparent_texture():
     whitetex.specular_intensity = 0
     whitetex.use_object_color = True
     return whitetex
-
-
-def recolor_for_roles():
-    """Depending on the names of the coils, give them a specific color."""
-    blue = (0.0, 0.0, 1.0, 1)
-    red = (1.0, 0.0, 0.0, 1)
-    yellow = (1.0, 0.74, 0.006, 1)
-    green = (0, 1.0, 0, 1)
-    color_dict = {'TT': red, 'TM': red, 'TB': red,
-                  'LL': green, 'UL': green, 'SL': green,
-                  'SL_L':green, 'SL_R': green,
-                  'MR': yellow, 'ML': yellow, 'FT': yellow,
-                  'LI': blue,
-                  }
-    for ind, obj, place, *_ in bsh.ema_active_meshes + bsh.ema_biteplate_meshes + \
-                               bsh.ema_reference_meshes + bsh.ema_inferred_meshes:
-        new_col = color_dict.get(place, False)
-        if new_col:
-            print('recoloring {} to {}'.format(obj.name, str(new_col)))
-            obj.color = new_col
