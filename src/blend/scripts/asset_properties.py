@@ -30,3 +30,5 @@ name_of_popup_object = "PopupMenu"
 game_background_color = (0.07, 0.07, 0.07) # light grey, best visibility
 game_contrast_color = (0.5, 0.5, 0.5) # medium grey, pleasant contrast
 
+# naming rules
+naming_rule_coil_mesh = lambda i: 'CoilCube{}'.format(str(i).zfill(2))
