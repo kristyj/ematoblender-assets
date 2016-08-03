@@ -10,6 +10,10 @@ processBlendResources {
     from "src/blend/scripts"
 }
 
+/* ------------------------------------------------------------------------------------------------------------------ */
+// Example tasks
+
+// Example task illustrating creating a new blend file with in-task instructions
 task rotateCube(type: BlenderExec) {
     dependsOn processBlendResources
     ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/cube_rot.blend")
@@ -19,6 +23,7 @@ task rotateCube(type: BlenderExec) {
                 |bpy.ops.wm.save_as_mainfile(filepath='$destFile', compress=True)""".stripMargin()
 }
 
+// Example task illustrating a render using the input from another task with in-task instructions
 task renderCube(type: BlenderExec) {
     dependsOn rotateCube
     srcFile = rotateCube.destBlendFile
@@ -27,7 +32,7 @@ task renderCube(type: BlenderExec) {
                 |bpy.ops.render.render(write_still=True)""".stripMargin()
 }
 
-// Example task illustrating
+// Example task illustrating creating a new blend file using a script file
 task moveCubeFromFile(type: BlenderExec) {
     dependsOn processBlendResources
     ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/example_moved.blend")
@@ -35,6 +40,7 @@ task moveCubeFromFile(type: BlenderExec) {
     destFile = destBlendFile
     scriptFile = file("$sourceSets.blend.output.resourcesDir/asset_manipulation_example.py")
 }
+/* ------------------------------------------------------------------------------------------------------------------ */
 
 class BlenderExec extends DefaultTask {
 
