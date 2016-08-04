@@ -6,6 +6,7 @@ __author__ = "Kristy"
 
 # game logic default options
 hifreq_sensor_skips = 5
+lowfreq_sensor_skips = 100
 bge_script_path = 'ematoblender.scripts.ema_blender.ema_bge.bge_emareadin.main'
 
 
@@ -13,7 +14,7 @@ bge_script_path = 'ematoblender.scripts.ema_blender.ema_bge.bge_emareadin.main'
 # TODO: Move to set location within the repo for storing these things
 # location of status/webcam scene for overlay
 rel_loc_of_statusbar_dot_blend = '../resources'
-statusbar_dot_blend = 'text_video_scene_latest.blend'
+statusbar_dot_blend = 'text_video_scene_1.blend'
 path_to_statusbar_in_dot_blend = "Scene"
 name_of_statusbar_object = "TextScene"
 
@@ -22,7 +23,7 @@ rotation_avatar = 'Avatar'
 
 # location of popup menu scene for occasional overlay
 rel_loc_of_popup_dot_blend = "../resources"
-popup_dot_blend = "popup_menu_latest.blend"
+popup_dot_blend = "popup_menu_1.blend"
 path_to_popup_in_dot_blend = "Scene"
 name_of_popup_object = "PopupMenu"
 
