@@ -1,6 +1,7 @@
 """Begins with a MakeHuman file, ends with a rigged face"""
 import bpy
 import os
+import math
 import asset_properties as pps
 
 def import_makehuman():
@@ -27,3 +28,31 @@ def cut_head():
 
     # delete vertices that remain selected
     bpy.ops.mesh.delete(type='VERT')
+
+def set_origin_to_lower_lip_center(mymeshname):
+    """Providing that the model stands straddling the y-axis with z-axis upwards, finds the middle highest vertex
+    on the lower lip. Enter the name of the body mesh, eg default_makehuman:Body."""
+
+    def find_lower_lip_center(mymeshname):
+        obj = bpy.data.objects[mymeshname]
+        gi = obj.vertex_groups['DEF-jaw'].index
+        all_ll_vertices = [v for v in bpy.data.meshes[mymeshname].vertices for g in v.groups if g.group == gi]
+        print('all ll vertices', all_ll_vertices)
+        # get mid x coordinate
+        x_mid = min([o.co.x for o in all_ll_vertices]) * 0.5 + max([o.co.x for o in all_ll_vertices]) * 0.5
+        print(x_mid)
+        # get largest y that's close to the mid x coordinate (decrease in value going backwards to capture front of mouth
+        maxv, height = max([(v, v.co.z - v.co.y * 0.5) for v in all_ll_vertices if abs(v.co.x - x_mid) < 0.1], key=lambda x: x[1])
+        return maxv
+
+    def set_origin_to_result(meshname, vertexfindingfn):
+        originvertex = vertexfindingfn(meshname)
+        originvertex.select = True
+        newlocation = originvertex.co
+        bpy.context.scene.cursor_location = newlocation
+        # move 3D cursor to new location
+        bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+
+    set_origin_to_result(mymeshname, find_lower_lip_center)
+
+set_origin_to_lower_lip_center(bpy.data.objects['default_female:Body'].name)
