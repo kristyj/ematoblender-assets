@@ -2,9 +2,7 @@ __author__ = 'Kristy'
 import bpy
 import mathutils
 import math
-from .bpy_workspace import postfn_gamemaster_reset_decorator
-from .. import blender_shared_objects as bsh
-
+from bpy_workspace import postfn_gamemaster_reset_decorator
 
 @postfn_gamemaster_reset_decorator
 def delete_standard_camera():
@@ -15,7 +13,6 @@ def delete_standard_camera():
         #bpy.context.scene.objects.unlink(camobj)
         camobj.select = True
         bpy.ops.object.delete()
-
 
 def add_parented_camera(empty_loc, cam_loc, empty_name, cam_name):
     """ Add an empty, add a camera, parent the empty to the camera, make the camera look at the empty.
@@ -59,9 +56,6 @@ def add_circling_camera():
     # for testing scale by 10 so camera at y=-10000 (don't do in practise as too far away!)
     eo.delta_scale = mathutils.Vector((eo.delta_scale.x, eo.delta_scale.y*10, eo.delta_scale.z))
 
-    # save the object references
-    bsh.circling_cam_empty = eo
-
 
 def add_midsaggital_camera():
     """ Add a static camera that shows the mid-saggital view."""
@@ -88,12 +82,11 @@ def look_at(loc, point):
     # assume we're using euler rotation
     return rot_quat
 
+def main():
+    delete_standard_camera()
+    add_circling_camera()
+    add_midsaggital_camera()
+    add_frontal_camera()
 
-
-@postfn_gamemaster_reset_decorator
-def move_camera_focus(newlocation):
-    """Move the focus of the camera some location by moving its target empty.
-    The newlocation is a Vector."""
-    camemp = bsh.circling_cam_empty
-    camemp = newlocation
-
+if __name__=="__main__":
+    main()

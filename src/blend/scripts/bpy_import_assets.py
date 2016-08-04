@@ -4,10 +4,10 @@ import bpy
 import math
 import mathutils
 import re, os, copy
-from .bpy_workspace import postfn_gamemaster_reset_decorator, prefn_gamemaster_select_decorator
-from .bpy_setup_cameras import delete_standard_camera
-from .. import coil_info as ci
-from ...ema_shared import properties as pps
+import asset_properties as pps
+from bpy_workspace import postfn_gamemaster_reset_decorator, prefn_gamemaster_select_decorator
+#from bpy_setup_cameras import delete_standard_camera
+#from .. import coil_info as ci
 
 ##########################################################################
 ##                    GENERAL IMPORT FUNCTIONS
@@ -122,15 +122,20 @@ def grab_scene_contents(*objectnames, targetlayers=(1, 2), targetscenename='Scen
 
 @postfn_gamemaster_reset_decorator
 @prefn_gamemaster_select_decorator
-def add_statusbar_scene():
+def add_statusbar_scene(abspathtodir):
     """Import a text scene from the current directory. This will be used to set status updates, show webcam etc.
     Because it shows continually and thus is not controlled by the HIFREQ logic brick, place an additional logic
     brick on the CircularCamera to show it always.
     TODO: In future this could simply use the main game script and trigger at a lesser interval.
     """
-    append_item_relative_to_scriptsdir(blenderfile=pps.statusbar_dot_blend,
+    # append_item_relative_to_scriptsdir(blenderfile=pps.statusbar_dot_blend,
+    #                           itemname=pps.name_of_statusbar_object,
+    #                           pathfromscripts=pps.rel_loc_of_statusbar_dot_blend,
+    #                           locationinblend=pps.path_to_statusbar_in_dot_blend)
+
+    append_item_from_abs_path(blenderfile=pps.statusbar_dot_blend,
                               itemname=pps.name_of_statusbar_object,
-                              pathfromscripts=pps.rel_loc_of_statusbar_dot_blend,
+                              abspath=abspathtodir,
                               locationinblend=pps.path_to_statusbar_in_dot_blend)
 
     # switch back to default scene after adding new one
@@ -138,12 +143,13 @@ def add_statusbar_scene():
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
 
-    # get the circling camera object, it is on this that the scene is overlaid
-    from ematoblender.scripts.ema_blender.blender_shared_objects import circling_cam
-    circling_cam = bpy.context.scene.objects.get(circling_cam, 0)
-    if not circling_cam:
-        raise ValueError("The circling camera must be added before adding a menu")
-    camname = circling_cam.name
+    # # TODO: Uncomment and handle camera overlay in gradle
+    # # get the circling camera object, it is on this that the scene is overlaid
+    # from ematoblender.scripts.ema_blender.blender_shared_objects import circling_cam
+    # circling_cam = bpy.context.scene.objects.get(circling_cam, 0)
+    # if not circling_cam:
+    #     raise ValueError("The circling camera must be added before adding a menu")
+    # camname = circling_cam.name
 
     # add a low-frequency sensor logic brick to the camera
     bpy.ops.logic.sensor_add(type='ALWAYS', name='LOWFREQ', object=circling_cam.name)
@@ -176,11 +182,11 @@ def add_statusbar_scene():
 
 @postfn_gamemaster_reset_decorator
 @prefn_gamemaster_select_decorator
-def add_menu_scene(scene_name=pps.name_of_popup_object):
+def add_menu_scene(abspathtodir, scene_name=pps.name_of_popup_object):
 
-    append_item_relative_to_scriptsdir(blenderfile=pps.popup_dot_blend,
+    append_item_from_abs_path(blenderfile=pps.popup_dot_blend,
                               itemname=pps.name_of_popup_object,
-                              pathfromscripts=pps.rel_loc_of_popup_dot_blend,
+                              abspath=abspathtodir,
                               locationinblend=pps.path_to_popup_in_dot_blend)
 
     # switch back to default scene after adding new one
