@@ -33,3 +33,7 @@ game_contrast_color = (0.5, 0.5, 0.5) # medium grey, pleasant contrast
 
 # naming rules
 naming_rule_coil_mesh = lambda i: 'CoilCube{}'.format(str(i).zfill(2))
+
+# makehuman import
+makehuman_filename = "default_female.mhx"
+makehuman_face_vertex_groups = ['DEF-neck', 'DEF-head', 'DEF-jaw']
