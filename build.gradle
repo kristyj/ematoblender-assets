@@ -75,19 +75,6 @@ task addGameCameras(type: BlenderExec) {
                 |save_blend_to_dest()""".stripMargin()
 }
 
-task addCoilObjects(type: BlenderExec) {
-    dependsOn loadGameMenus
-    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/game_logic_coils.blend")
-    srcFile = file("$sourceSets.blend.output.resourcesDir/game_logic_menus.blend")
-    destFile = destBlendFile
-    resourcesDir = "$sourceSets.blend.output.resourcesDir"
-    script = """|from bpy_add_game_objects import spawn_hidden_coils
-                |from asset_properties import naming_rule_coil_mesh
-                |spawn_hidden_coils(naming_rule_coil_mesh)
-                |from asset_manipulation_example import save_blend_to_dest
-                |save_blend_to_dest()""".stripMargin()
-}
-
 task loadGameMenus(type: BlenderExec) {
     dependsOn addGameCameras
     // todo: version the type of menus that are added (the menu blend will evolve with time)
@@ -99,6 +86,19 @@ task loadGameMenus(type: BlenderExec) {
     script = """|import bpy_import_assets as ia
                 |ia.add_statusbar_scene('$resourcesDir')
                 |ia.add_menu_scene('$resourcesDir')
+                |from asset_manipulation_example import save_blend_to_dest
+                |save_blend_to_dest()""".stripMargin()
+}
+
+task addCoilObjects(type: BlenderExec) {
+    dependsOn loadGameMenus
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/game_logic_coils.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/game_logic_menus.blend")
+    destFile = destBlendFile
+    resourcesDir = "$sourceSets.blend.output.resourcesDir"
+    script = """|from bpy_add_game_objects import spawn_hidden_coils
+                |from asset_properties import naming_rule_coil_mesh
+                |spawn_hidden_coils(naming_rule_coil_mesh)
                 |from asset_manipulation_example import save_blend_to_dest
                 |save_blend_to_dest()""".stripMargin()
 }
