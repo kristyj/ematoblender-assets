@@ -62,4 +62,15 @@ def scale_object(objectname, x, y, z):
     current_scale = bpy.data.objects[objectname].scale
     bpy.data.objects[objectname].scale  = [i for i in map(lambda x: x[0] * x[1], zip(current_scale, [x, y, z]))]
 
+def scale_around_object_origin(objectname, x, y, z):
+    obj = bpy.data.objects[objectname]
+    current_location = obj.location
+    current_rotation = obj.rotation_quaternion
+    obj.location = [0,0,0]
+    obj.rotation_quaternion = [1, 0, 0, 0]
+    scale_object(obj.name, x, y, z)
+    obj.location = current_location
+    obj.rotation_quaternion = [1, 0, 0, 0]
+
+scale_around_object_origin('default_female', 1, 1, 5)
 #scale_object('default_female', 1, 1, 5)
