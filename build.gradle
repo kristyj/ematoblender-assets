@@ -133,8 +133,7 @@ class BlenderExec extends DefaultTask {
             script.println "import bpy"
 
             // give access to the contents in the scripts folder
-            if (getInputs().getProperties().containsKey("resourcesDir")){ // todo: optimise this syntax
-                println "Has resources dir: " + "${resourcesDir.replaceAll('\\\\', '\\\\\\\\')}"
+            if (getInputs().getProperties().containsKey("resourcesDir")){
                 script.println "import sys"
                 script.println "sys.path.append('${resourcesDir.replaceAll('\\\\', '\\\\\\\\')}')"
             } else {println("there is no resourcesDir availabe to import for this task")}
