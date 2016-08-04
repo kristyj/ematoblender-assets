@@ -115,6 +115,7 @@ task addCoilObjects(type: BlenderExec) {
 * Set viewing settings for the cameras
 * */
 
+/* ------------------------------------------------------------------------------------------------------------------ */
 
 class BlenderExec extends DefaultTask {
 
