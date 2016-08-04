@@ -76,9 +76,9 @@ task addGameCameras(type: BlenderExec) {
 }
 
 task addCoilObjects(type: BlenderExec) {
-    dependsOn addGameCameras
+    dependsOn loadGameMenus
     ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/game_logic_coils.blend")
-    srcFile = file("$sourceSets.blend.output.resourcesDir/game_logic_cameras.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/game_logic_menus.blend")
     destFile = destBlendFile
     resourcesDir = "$sourceSets.blend.output.resourcesDir"
     script = """|from bpy_add_game_objects import spawn_hidden_coils
