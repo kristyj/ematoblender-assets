@@ -6,7 +6,7 @@ import mathutils
 import re, os, copy
 import asset_properties as pps
 from bpy_workspace import postfn_gamemaster_reset_decorator, prefn_gamemaster_select_decorator
-#from bpy_setup_cameras import delete_standard_camera
+from bpy_setup_cameras import delete_standard_camera
 #from .. import coil_info as ci
 
 ##########################################################################
@@ -143,13 +143,11 @@ def add_statusbar_scene(abspathtodir):
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
 
-    # # TODO: Uncomment and handle camera overlay in gradle
-    # # get the circling camera object, it is on this that the scene is overlaid
-    # from ematoblender.scripts.ema_blender.blender_shared_objects import circling_cam
-    # circling_cam = bpy.context.scene.objects.get(circling_cam, 0)
-    # if not circling_cam:
-    #     raise ValueError("The circling camera must be added before adding a menu")
-    # camname = circling_cam.name
+    # get the circling camera object, it is on this that the scene is overlaid
+    circling_cam = bpy.context.scene.objects.get("CircularCamera", False)
+    if not circling_cam:
+        raise ValueError("The circling camera must be added before adding a menu")
+    camname = circling_cam.name
 
     # add a low-frequency sensor logic brick to the camera
     bpy.ops.logic.sensor_add(type='ALWAYS', name='LOWFREQ', object=circling_cam.name)
