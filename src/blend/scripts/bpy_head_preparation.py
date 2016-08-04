@@ -55,4 +55,11 @@ def set_origin_to_lower_lip_center(mymeshname):
 
     set_origin_to_result(mymeshname, find_lower_lip_center)
 
-set_origin_to_lower_lip_center(bpy.data.objects['default_female:Body'].name)
+#set_origin_to_lower_lip_center(bpy.data.objects['default_female:Body'].name)
+
+def scale_object(objectname, x, y, z):
+    """Multiply the object's current scaling by the new dimensions given in x, y, z."""
+    current_scale = bpy.data.objects[objectname].scale
+    bpy.data.objects[objectname].scale  = [i for i in map(lambda x: x[0] * x[1], zip(current_scale, [x, y, z]))]
+
+#scale_object('default_female', 1, 1, 5)
