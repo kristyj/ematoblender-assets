@@ -105,6 +105,16 @@ task addCoilObjects(type: BlenderExec) {
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
+/* MakeHuman import tasks
+* Initial import of .mhx avatar
+* Scaling and re-positioning as yet manually performed
+* Delete body, leave only head
+* Make vertex groups for lips, cheek-opening, tongue
+* Turn off backface-culling
+* Set textures for particular vertex groups
+* Set viewing settings for the cameras
+* */
+
 
 class BlenderExec extends DefaultTask {
 
