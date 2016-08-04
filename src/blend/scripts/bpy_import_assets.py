@@ -143,11 +143,21 @@ def add_statusbar_scene(abspathtodir):
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
 
+<<<<<<< HEAD
     # get the circling camera object, it is on this that the scene is overlaid
     circling_cam = bpy.context.scene.objects.get("CircularCamera", False)
     if not circling_cam:
         raise ValueError("The circling camera must be added before adding a menu")
     camname = circling_cam.name
+=======
+    # # TODO: Uncomment and handle camera overlay in gradle
+    # # get the circling camera object, it is on this that the scene is overlaid
+    # from ematoblender.scripts.ema_blender.blender_shared_objects import circling_cam
+    # circling_cam = bpy.context.scene.objects.get(circling_cam, 0)
+    # if not circling_cam:
+    #     raise ValueError("The circling camera must be added before adding a menu")
+    # camname = circling_cam.name
+>>>>>>> 70773df8f1a153765e2c642f16dd77c888bc0e3c
 
     # add a low-frequency sensor logic brick to the camera
     bpy.ops.logic.sensor_add(type='ALWAYS', name='LOWFREQ', object=circling_cam.name)
