@@ -138,11 +138,13 @@ task cutHeadMakeHuman(type:BlenderExec) {
     //>>> bpy.ops.object.vertex_group_set_active(group='DEF-chest') // make a vertex group active
     //bpy.ops.mesh.delete(type='VERT') // delete the selected vertices
     dependsOn importMakeHuman
-    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/todo.blend")
-    srcFile = file("$sourceSets.blend.output.resourcesDir/todo.blend")
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/makehuman_head.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/makehuman_imported.blend")
     destFile = destBlendFile
     resourcesDir = "$sourceSets.blend.output.resourcesDir"
-    script = """|
+    blenderInForeground = true
+    script = """|from bpy_head_preparation import cut_head
+                |cut_head()
                 |from asset_manipulation_example import save_blend_to_dest
                 |save_blend_to_dest()""".stripMargin()
 }
@@ -153,6 +155,7 @@ task lipsToOrigin(type:BlenderExec) {
 
 task scaleAroundOrigin(type:BlenderExec) {
     dependsOn scaleAroundOrigin
+
 }
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -173,6 +176,10 @@ class BlenderExec extends DefaultTask {
     @Input
     @Optional
     String blenderPlugins // comma-separated string of plugin names
+
+    @Input
+    @Optional
+    Boolean blenderInForeground
 
     @InputFile
     @Optional
@@ -207,7 +214,7 @@ class BlenderExec extends DefaultTask {
                 // '--' argument causes Blender to ignore following arguments
                 // therefore destFile can be used for saving from within script using index sys.argv.index('--')+1
                 // -Y stops Blender from running startup scripts
-                commandLine 'blender', srcFile, '-Y', '--background', blenderPlugins ? '--addons':'', blenderPlugins ?: '', '--python', scriptFile ?: createScriptFile(script), '--', destFile
+                commandLine 'blender', srcFile, blenderInForeground ? '':'--background', blenderPlugins ? '--addons':'', blenderPlugins ?: '', '--python', scriptFile ?: createScriptFile(script), '--', destFile
                 standardOutput = out
                 errorOutput = out
             }

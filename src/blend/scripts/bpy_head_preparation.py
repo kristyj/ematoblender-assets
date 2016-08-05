@@ -3,6 +3,10 @@ import bpy
 import os
 import math
 import asset_properties as pps
+from bpy_workspace import  editmode_decorator
+
+mhmeshname = ''.join(pps.makehuman_filename.split('.')[:-1]) + ":Body"
+mhobjectname = ''.join(pps.makehuman_filename.split('.')[:-1])
 
 def import_makehuman():
     mhxpath = os.path.normpath("$resourcesDir/" + pps.makehuman_filename)
@@ -10,23 +14,29 @@ def import_makehuman():
 
 def cut_head():
     """Delete all vertices in the MakeHuman body object except for DEF-neck, DEF-head and DEF-jaw vertex groups"""
-    mhxname = os.join('', pps.makehuman_filename.split('.')[:-1]) # filename without mhx extension
+    mhxname = mhmeshname # filename without mhx extension
     savegroups = pps.makehuman_face_vertex_groups
+    print('About to delete vertices on object:', bpy.data.objects[mhxname])
 
-    # select all vertices in the object (this could be more efficient)
-    for vg in bpy.data.objects[mhxname+':Body'].vertex_groups:
-        bpy.ops.object.vertex_group_set_active(group=vg.name)
-        bpy.ops.object.vertex_group_select()
+    bpy.context.scene.objects.active = bpy.data.objects[mhxname]
 
-        if vg.name not in savegroups:
-            bpy.ops.object.vertex_group_remove() # remove group reference if not to be kept
+    # in object mode
+    # select all vertices
+    for v in bpy.data.meshes[mhmeshname].vertices:
+        v.select = True
 
-    # deselect vertices to keep
-    for sg in [bpy.data.objects[mhxname+':Body'].vertex_groups[s] for s in savegroups]:
-        bpy.ops.object.vertex_group_set_active(group=sg.name)
-        bpy.ops.object.vertex_group_deselect()
+    # move to edit mode
+    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+    # for each vertex group in savegroups deselect,
+        # for each not delete the group
+    for vg in bpy.data.objects[mhxname].vertex_groups:
+        if vg.name in savegroups:
+            result = bpy.ops.object.vertex_group_set_active(group=vg.name)
+            bpy.ops.object.vertex_group_deselect()
+        else:
+            bpy.ops.object.vertex_group_remove()
+    # delete all remaining selected vertices
 
-    # delete vertices that remain selected
     bpy.ops.mesh.delete(type='VERT')
 
 def set_origin_to_lower_lip_center(mymeshname):
