@@ -137,7 +137,7 @@ task cutHeadMakeHuman(type:BlenderExec) {
     //bpy.data.objects['default_female:Body'].vertex_groups['DEF-head'] // this is where the object is stored
     //>>> bpy.ops.object.vertex_group_set_active(group='DEF-chest') // make a vertex group active
     //bpy.ops.mesh.delete(type='VERT') // delete the selected vertices
-    dependsOn loadGameMenus
+    dependsOn importMakeHuman
     ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/todo.blend")
     srcFile = file("$sourceSets.blend.output.resourcesDir/todo.blend")
     destFile = destBlendFile
@@ -147,9 +147,13 @@ task cutHeadMakeHuman(type:BlenderExec) {
                 |save_blend_to_dest()""".stripMargin()
 }
 
-task lipsToOrigin(type:BlenderExec) {}
+task lipsToOrigin(type:BlenderExec) {
+    dependsOn cutHeadMakeHuman
+}
 
-task scaleAroundOrigin(type:BlenderExec) {}
+task scaleAroundOrigin(type:BlenderExec) {
+    dependsOn scaleAroundOrigin
+}
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 class BlenderExec extends DefaultTask {
