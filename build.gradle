@@ -115,16 +115,21 @@ task addCoilObjects(type: BlenderExec) {
 * Set viewing settings for the cameras
 * */
 
-task importMakeHuman(type:Exec) {
+task importMakeHuman(type:BlenderExec) {
     dependsOn processBlendResources // later should depend on loadGameMenus (ie all game settings ready)
-    // run the command line as:
-    // blender --addons io_import_scene_mhx --python-expr bpy.context.user_preferences.system.use_scripts_auto_execute = True
-/*
-*Import the body with bpy.ops.import_scene.makehuman_mhx
-* import os
-* mhxpath = os.path.normpath("$resourcesDir/" + pps.makehuman_filename)
-* bpy.ops.import_scene.makehuman_mhx(filepath=mhxpath, clothes=False, shapekeys=False, shapedrivers=False, rigify=False)
-* */
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/makehuman_imported.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/cube.blend")
+    destFile = destBlendFile
+    resourcesDir = "$sourceSets.blend.output.resourcesDir"
+    blenderPlugins = "io_import_scene_mhx" // run the command line with: blender --addons io_import_scene_mhx
+    script = """|bpy.context.user_preferences.system.use_scripts_auto_execute = True
+                |import os
+                |import asset_properties as pps
+                |mhxpath = os.path.normpath("$resourcesDir/"+pps.makehuman_filename)
+                |bpy.ops.import_scene.makehuman_mhx(filepath=mhxpath, clothes=False, shapekeys=False, shapedrivers=False, rigify=False)
+                |from asset_manipulation_example import save_blend_to_dest
+                |save_blend_to_dest()""".stripMargin()
+
 }
 
 task cutHeadMakeHuman(type:BlenderExec) {
@@ -161,6 +166,10 @@ class BlenderExec extends DefaultTask {
     @Optional
     String resourcesDir
 
+    @Input
+    @Optional
+    String blenderPlugins // comma-separated string of plugin names
+
     @InputFile
     @Optional
     File scriptFile
@@ -194,7 +203,7 @@ class BlenderExec extends DefaultTask {
                 // '--' argument causes Blender to ignore following arguments
                 // therefore destFile can be used for saving from within script using index sys.argv.index('--')+1
                 // -Y stops Blender from running startup scripts
-                commandLine 'blender', srcFile, '-Y', '--background', '--python', scriptFile ?: createScriptFile(script), '--', destFile
+                commandLine 'blender', srcFile, '-Y', '--background', blenderPlugins ? '--addons':'', blenderPlugins ?: '', '--python', scriptFile ?: createScriptFile(script), '--', destFile
                 standardOutput = out
                 errorOutput = out
             }
