@@ -30,21 +30,27 @@ def cut_head():
     # for each vertex group in savegroups deselect,
         # for each not delete the group
     for vg in bpy.data.objects[mhxname].vertex_groups:
+        bpy.ops.object.vertex_group_set_active(group=vg.name)
         if vg.name in savegroups:
-            result = bpy.ops.object.vertex_group_set_active(group=vg.name)
             bpy.ops.object.vertex_group_deselect()
         else:
             bpy.ops.object.vertex_group_remove()
     # delete all remaining selected vertices
 
     bpy.ops.mesh.delete(type='VERT')
+    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-def set_origin_to_lower_lip_center(mymeshname):
+def set_origin_to_ll_move_to_origin():
+    set_origin_to_lower_lip_center(mhmeshname, mhobjectname)
+    bpy.data.objects[mhobjectname].location = [0,0,0]
+
+def set_origin_to_lower_lip_center(mymeshname, myouterobjectname):
     """Providing that the model stands straddling the y-axis with z-axis upwards, finds the middle highest vertex
     on the lower lip. Enter the name of the body mesh, eg default_makehuman:Body."""
 
     def find_lower_lip_center(mymeshname):
         obj = bpy.data.objects[mymeshname]
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         gi = obj.vertex_groups['DEF-jaw'].index
         all_ll_vertices = [v for v in bpy.data.meshes[mymeshname].vertices for g in v.groups if g.group == gi]
         print('all ll vertices', all_ll_vertices)
@@ -55,15 +61,16 @@ def set_origin_to_lower_lip_center(mymeshname):
         maxv, height = max([(v, v.co.z - v.co.y * 0.5) for v in all_ll_vertices if abs(v.co.x - x_mid) < 0.1], key=lambda x: x[1])
         return maxv
 
-    def set_origin_to_result(meshname, vertexfindingfn):
+    def set_origin_to_result(meshname, vertexfindingfn, originreceiver):
         originvertex = vertexfindingfn(meshname)
         originvertex.select = True
         newlocation = originvertex.co
         bpy.context.scene.cursor_location = newlocation
+        bpy.context.scene.objects.active = bpy.data.objects[originreceiver]
         # move 3D cursor to new location
         bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
 
-    set_origin_to_result(mymeshname, find_lower_lip_center)
+    set_origin_to_result(mymeshname, find_lower_lip_center, myouterobjectname)
 
 #set_origin_to_lower_lip_center(bpy.data.objects['default_female:Body'].name)
 
@@ -82,5 +89,3 @@ def scale_around_object_origin(objectname, x, y, z):
     obj.location = current_location
     obj.rotation_quaternion = [1, 0, 0, 0]
 
-scale_around_object_origin('default_female', 1, 1, 5)
-#scale_object('default_female', 1, 1, 5)

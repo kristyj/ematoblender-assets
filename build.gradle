@@ -151,6 +151,15 @@ task cutHeadMakeHuman(type:BlenderExec) {
 
 task lipsToOrigin(type:BlenderExec) {
     dependsOn cutHeadMakeHuman
+    ext.destBlendFile = file("$sourceSets.blend.output.resourcesDir/makehuman_centered.blend")
+    srcFile = file("$sourceSets.blend.output.resourcesDir/makehuman_head.blend")
+    destFile = destBlendFile
+    resourcesDir = "$sourceSets.blend.output.resourcesDir"
+    blenderInForeground = true
+    script = """|from bpy_head_preparation import set_origin_to_ll_move_to_origin
+                |set_origin_to_ll_move_to_origin()
+                |from asset_manipulation_example import save_blend_to_dest
+                |save_blend_to_dest()""".stripMargin()
 }
 
 task scaleAroundOrigin(type:BlenderExec) {
